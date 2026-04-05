@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 .Rhistory
 *.ipynb
+__pycache__/
+.streamlit/
