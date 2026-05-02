@@ -263,11 +263,14 @@ def top_drivers(row_df: pd.DataFrame, n: int = 6):
 
 
 FEAT_LABELS = {
-    # Relationship behaviors
-    "q0018":      "Q18: How often you try to be the one who pays on a date",
-    "q0019_0005": "Q19: You pay on dates because you asked them out",
-    "q0019_0002": "Q19: You pay on dates because you earn more than your date",
-    # Lifestyle frequencies (Q7) — correct mapping per survey instrument
+    # Q4 — Source of masculinity ideas
+    "q0004_0001": "Q4: Learned what it means to be a man from your father",
+    "q0004_0002": "Q4: Learned what it means to be a man from your mother",
+    "q0004_0003": "Q4: Learned what it means to be a man from other family members",
+    "q0004_0004": "Q4: Learned what it means to be a man from pop culture",
+    "q0004_0005": "Q4: Learned what it means to be a man from your friends",
+    "q0004_0006": "Q4: Learned what it means to be a man from another source",
+    # Q7 — Lifestyle frequency (correct mapping per survey instrument)
     "q0007_0001": "Q7: How often you ask a friend for professional advice",
     "q0007_0002": "Q7: How often you ask a friend for personal advice",
     "q0007_0003": "Q7: How often you express physical affection to male friends",
@@ -279,53 +282,77 @@ FEAT_LABELS = {
     "q0007_0009": "Q7: How often you work out",
     "q0007_0010": "Q7: How often you see a therapist",
     "q0007_0011": "Q7: How often you feel lonely or isolated",
-    # Daily worries (Q8)
-    "q0008_0010": "Q8: Whether you worry about your finances or income daily",
-    "q0008_0008": "Q8: Whether you worry about your mental health daily",
-    "q0008_0002": "Q8: Whether you worry about your weight daily",
-    "q0008_0005": "Q8: Whether you worry about the appearance of your genitalia daily",
-    "q0008_0004": "Q8: Whether you worry about your physique daily",
-    "q0008_0007": "Q8: Whether you worry about sexual performance daily",
-    "q0008_0011": "Q8: Whether you worry about your ability to provide for your family",
-    "q0008_0009": "Q8: Whether you worry about your physical health daily",
+    # Q8 — Daily worries
     "q0008_0001": "Q8: Whether you worry about your height daily",
+    "q0008_0002": "Q8: Whether you worry about your weight daily",
     "q0008_0003": "Q8: Whether you worry about your hair or hairline daily",
+    "q0008_0004": "Q8: Whether you worry about your physique daily",
+    "q0008_0005": "Q8: Whether you worry about the appearance of your genitalia daily",
     "q0008_0006": "Q8: Whether you worry about your clothing or style daily",
-    # Source of masculinity ideas (Q4)
-    "q0004_0001": "Q4: Whether you learned what it means to be a man from your father",
-    "q0004_0005": "Q4: Whether you learned what it means to be a man from your friends",
-    "q0004_0003": "Q4: Whether you learned what it means to be a man from other family members",
-    "q0004_0004": "Q4: Whether you learned what it means to be a man from pop culture",
-    "q0004_0002": "Q4: Whether you learned what it means to be a man from your mother",
-    # Work attitudes (Q10/Q11)
-    "q0011_0001": "Q11: Whether you see managers preferring to hire or promote women as a disadvantage",
-    "q0011_0002": "Q11: Whether you see the risk of harassment accusations as a disadvantage at work",
-    "q0011_0003": "Q11: Whether you see the risk of sexism accusations as a disadvantage at work",
-    "q0010_0001": "Q10: Whether you see men earning more as an advantage at work",
-    "q0010_0005": "Q10: Whether you see men being praised more as an advantage at work",
-    "q0010_0003": "Q10: Whether you see men having more career choice as an advantage at work",
-    # Harassment response (Q12)
-    "q0012_0005": "Q12: Whether you did not respond when you witnessed sexual harassment at work",
-    "q0012_0004": "Q12: Whether you reached out to support a victim of workplace harassment",
-    "q0012_0006": "Q12: Whether you have never witnessed sexual harassment at work",
-    # Consent and sexual boundary reflection (Q20/Q21)
-    "q0021_0001": "Q21: Whether you have wondered if you pushed a partner too far sexually",
-    "q0021_0003": "Q21: Whether you contacted a past partner to ask if you went too far",
-    "q0021_0002": "Q21: Whether you talked with friends about whether you pushed a partner too far",
-    "q0020_0002": "Q20: Whether you ask for verbal confirmation of consent",
-    "q0020_0003": "Q20: Whether you make a physical move and see how your partner reacts",
-    "q0020_0001": "Q20: Whether you read body language to gauge your partner's interest",
-    # MeToo awareness (Q14/Q22)
+    "q0008_0007": "Q8: Whether you worry about sexual performance daily",
+    "q0008_0008": "Q8: Whether you worry about your mental health daily",
+    "q0008_0009": "Q8: Whether you worry about your physical health daily",
+    "q0008_0010": "Q8: Whether you worry about your finances or income daily",
+    "q0008_0011": "Q8: Whether you worry about your ability to provide for your family",
+    "q0008_0012": "Q8: None of the above (daily worries)",
+    # Q9 — Employment
+    "q0009":      "Q9: Employment status",
+    # Q10 — Work advantages
+    "q0010_0001": "Q10: Advantage at work — men make more money",
+    "q0010_0002": "Q10: Advantage at work — men are taken more seriously",
+    "q0010_0003": "Q10: Advantage at work — men have more choice",
+    "q0010_0004": "Q10: Advantage at work — men have more promotion opportunities",
+    "q0010_0005": "Q10: Advantage at work — men are explicitly praised more",
+    "q0010_0006": "Q10: Advantage at work — men have more support from managers",
+    "q0010_0007": "Q10: Advantage at work — other",
+    "q0010_0008": "Q10: None of the above (work advantages)",
+    # Q11 — Work disadvantages
+    "q0011_0001": "Q11: Disadvantage at work — managers prefer to hire or promote women",
+    "q0011_0002": "Q11: Disadvantage at work — greater risk of harassment accusation",
+    "q0011_0003": "Q11: Disadvantage at work — greater risk of sexism or racism accusation",
+    "q0011_0004": "Q11: Disadvantage at work — other",
+    "q0011_0005": "Q11: None of the above (work disadvantages)",
+    # Q12 — Harassment response
+    "q0012_0001": "Q12: Harassment response — confronted the accused",
+    "q0012_0002": "Q12: Harassment response — contacted HR",
+    "q0012_0003": "Q12: Harassment response — contacted the accused's manager",
+    "q0012_0004": "Q12: Harassment response — reached out to support the victim",
+    "q0012_0005": "Q12: Harassment response — did not respond at all",
+    "q0012_0006": "Q12: Have never witnessed sexual harassment at work",
+    "q0012_0007": "Q12: Harassment response — other",
+    # Q14 — Heard about MeToo
     "q0014":      "Q14: How much you have heard about the #MeToo movement",
-    "q0022":      "Q22: Whether you changed your behavior in relationships after #MeToo",
+    # Q18 — Pays on dates
+    "q0018":      "Q18: How often you try to be the one who pays on a date",
+    # Q19 — Reasons for paying
+    "q0019_0001": "Q19: Pay on dates — it's the right thing to do",
+    "q0019_0002": "Q19: Pay on dates — you earn more than your date",
+    "q0019_0003": "Q19: Pay on dates — you feel good being the one who pays",
+    "q0019_0004": "Q19: Pay on dates — societal expectation",
+    "q0019_0005": "Q19: Pay on dates — you asked them out so feel obligated",
+    "q0019_0006": "Q19: Pay on dates — to see if they offer to share the cost",
+    "q0019_0007": "Q19: Pay on dates — other reason",
+    # Q20 — Gauging consent
+    "q0020_0001": "Q20: Gauge interest by reading physical body language",
+    "q0020_0002": "Q20: Gauge interest by asking for verbal confirmation of consent",
+    "q0020_0003": "Q20: Gauge interest by making a physical move and seeing how they react",
+    "q0020_0004": "Q20: Every situation is different when gauging interest",
+    "q0020_0005": "Q20: It isn't always clear how to gauge someone's interest",
+    "q0020_0006": "Q20: Gauge interest — other method",
+    # Q21 — Sexual boundary reflection
+    "q0021_0001": "Q21: Wondered whether you pushed a partner too far sexually",
+    "q0021_0002": "Q21: Talked with friends about whether you pushed a partner too far",
+    "q0021_0003": "Q21: Contacted a past partner to ask if you went too far",
+    "q0021_0004": "Q21: None of the above (sexual boundary reflection)",
+    # Q22 — Changed behavior post MeToo
+    "q0022":      "Q22: Changed your behavior in romantic relationships after #MeToo",
     # Demographics
+    "marital":    "Demographics: Marital status",
     "orientation":"Demographics: Sexual orientation",
     "race":       "Demographics: Race",
     "educ":       "Demographics: Education level",
     "age":        "Demographics: Age group",
     "kids":       "Demographics: Whether you have children",
-    "marital":    "Demographics: Marital status",
-    "q0009":      "Demographics: Employment status",
 }
 
 
