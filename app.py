@@ -131,16 +131,20 @@ def make_feature_row(answers: dict) -> pd.DataFrame:
     row["q0004_0006"] = 1 if "Other"                     in answers.get("q4", []) else 0
 
     # Q7 — lifestyle frequency (ordinal 0–4)
+    # Correct mapping per survey instrument:
+    # 0001 ask pro advice, 0002 ask personal advice, 0003 physical affection male friends,
+    # 0004 cry, 0005 get in physical fight, 0006 sex with women, 0007 sex with men,
+    # 0008 watch sports, 0009 work out, 0010 see therapist, 0011 feel lonely
     row["q0007_0001"] = FREQ_MAP[answers["q7_ask_pro"]]
     row["q0007_0002"] = FREQ_MAP[answers["q7_ask_personal"]]
     row["q0007_0003"] = FREQ_MAP[answers["q7_physical_affection"]]
     row["q0007_0004"] = FREQ_MAP[answers["q7_cry"]]
-    row["q0007_0005"] = FREQ_MAP[answers["q7_sex_women"]]
-    row["q0007_0006"] = FREQ_MAP[answers["q7_sex_men"]]
-    row["q0007_0007"] = FREQ_MAP[answers["q7_sports"]]
-    row["q0007_0008"] = FREQ_MAP[answers["q7_workout"]]
-    row["q0007_0009"] = FREQ_MAP[answers["q7_therapist"]]
-    row["q0007_0010"] = FREQ_MAP[answers["q7_therapist"]]   # duplicate col in data
+    row["q0007_0005"] = FREQ_MAP[answers["q7_fight"]]
+    row["q0007_0006"] = FREQ_MAP[answers["q7_sex_women"]]
+    row["q0007_0007"] = FREQ_MAP[answers["q7_sex_men"]]
+    row["q0007_0008"] = FREQ_MAP[answers["q7_sports"]]
+    row["q0007_0009"] = FREQ_MAP[answers["q7_workout"]]
+    row["q0007_0010"] = FREQ_MAP[answers["q7_therapist"]]
     row["q0007_0011"] = FREQ_MAP[answers["q7_lonely"]]
 
     # Q8 — daily worries
@@ -263,18 +267,18 @@ FEAT_LABELS = {
     "q0018":      "Q18: How often you try to be the one who pays on a date",
     "q0019_0005": "Q19: You pay on dates because you asked them out",
     "q0019_0002": "Q19: You pay on dates because you earn more than your date",
-    # Lifestyle frequencies (Q7)
-    "q0007_0005": "Q7: How often you have sexual relations with women",
-    "q0007_0006": "Q7: How often you have sexual relations with men",
-    "q0007_0011": "Q7: How often you feel lonely or isolated",
-    "q0007_0003": "Q7: How often you express physical affection to male friends",
+    # Lifestyle frequencies (Q7) — correct mapping per survey instrument
     "q0007_0001": "Q7: How often you ask a friend for professional advice",
     "q0007_0002": "Q7: How often you ask a friend for personal advice",
-    "q0007_0008": "Q7: How often you work out",
-    "q0007_0009": "Q7: How often you see a therapist",
-    "q0007_0010": "Q7: How often you see a therapist",
+    "q0007_0003": "Q7: How often you express physical affection to male friends",
     "q0007_0004": "Q7: How often you cry",
-    "q0007_0007": "Q7: How often you watch sports",
+    "q0007_0005": "Q7: How often you get in a physical fight",
+    "q0007_0006": "Q7: How often you have sexual relations with women",
+    "q0007_0007": "Q7: How often you have sexual relations with men",
+    "q0007_0008": "Q7: How often you watch sports",
+    "q0007_0009": "Q7: How often you work out",
+    "q0007_0010": "Q7: How often you see a therapist",
+    "q0007_0011": "Q7: How often you feel lonely or isolated",
     # Daily worries (Q8)
     "q0008_0010": "Q8: Whether you worry about your finances or income daily",
     "q0008_0008": "Q8: Whether you worry about your mental health daily",
@@ -339,12 +343,12 @@ for the model — the prediction reflects statistical patterns, not a judgment.*
 
 # ── Demo profiles ────────────────────────────────────────────────────────────
 DEMO_YES = {
-    # Traditional courtship script — model predicts Yes with 96.7% confidence
     "q7_ask_pro": "Sometimes", "q7_ask_personal": "Often",
     "q7_physical_affection": "Sometimes", "q7_cry": "Never, and not open to it",
-    "q7_sex_women": "Rarely", "q7_sex_men": "Rarely",
-    "q7_sports": "Never, and not open to it", "q7_workout": "Often",
-    "q7_therapist": "Often", "q7_lonely": "Rarely",
+    "q7_fight": "Never, and not open to it",
+    "q7_sex_women": "Rarely", "q7_sex_men": "Never, and not open to it",
+    "q7_sports": "Often", "q7_workout": "Often",
+    "q7_therapist": "Sometimes", "q7_lonely": "Rarely",
     "q8": ["None of the above"],
     "q9": "Employed",
     "q10": ["Men make more money", "Men are taken more seriously", "Men have more choice"],
@@ -363,9 +367,9 @@ DEMO_YES = {
 }
 
 DEMO_NO = {
-    # Norm-questioning profile — model predicts No with 92.0% confidence
     "q7_ask_pro": "Sometimes", "q7_ask_personal": "Sometimes",
     "q7_physical_affection": "Often", "q7_cry": "Sometimes",
+    "q7_fight": "Never, and not open to it",
     "q7_sex_women": "Never, and not open to it", "q7_sex_men": "Never, and not open to it",
     "q7_sports": "Rarely", "q7_workout": "Often",
     "q7_therapist": "Rarely", "q7_lonely": "Rarely",
@@ -426,14 +430,15 @@ with col1:
     answers["q7_ask_personal"]      = st.select_slider("Ask a friend for personal advice",                             FREQ_OPTIONS, value=dv("q7_ask_personal", "Sometimes"))
     answers["q7_physical_affection"] = st.select_slider("Express physical affection to male friends (hugging, etc.)", FREQ_OPTIONS, value=dv("q7_physical_affection", "Rarely"))
     answers["q7_cry"]               = st.select_slider("Cry",                                                          FREQ_OPTIONS, value=dv("q7_cry", "Rarely"))
+    answers["q7_fight"]             = st.select_slider("Get in a physical fight with another person",                  FREQ_OPTIONS, value=dv("q7_fight", "Never, and not open to it"))
     answers["q7_sex_women"]         = st.select_slider("Have sexual relations with women",                             FREQ_OPTIONS, value=dv("q7_sex_women", "Sometimes"))
     answers["q7_sex_men"]           = st.select_slider("Have sexual relations with men",                               FREQ_OPTIONS, value=dv("q7_sex_men", "Never, and not open to it"))
 
 with col2:
-    answers["q7_sports"]    = st.select_slider("Watch sports",          FREQ_OPTIONS, value=dv("q7_sports",    "Sometimes"))
-    answers["q7_workout"]   = st.select_slider("Work out",              FREQ_OPTIONS, value=dv("q7_workout",   "Sometimes"))
-    answers["q7_therapist"] = st.select_slider("See a therapist",       FREQ_OPTIONS, value=dv("q7_therapist", "Never, but open to it"))
-    answers["q7_lonely"]    = st.select_slider("Feel lonely or isolated", FREQ_OPTIONS, value=dv("q7_lonely",  "Rarely"))
+    answers["q7_sports"]    = st.select_slider("Watch sports",            FREQ_OPTIONS, value=dv("q7_sports",    "Sometimes"))
+    answers["q7_workout"]   = st.select_slider("Work out",                FREQ_OPTIONS, value=dv("q7_workout",   "Sometimes"))
+    answers["q7_therapist"] = st.select_slider("See a therapist",         FREQ_OPTIONS, value=dv("q7_therapist", "Never, but open to it"))
+    answers["q7_lonely"]    = st.select_slider("Feel lonely or isolated", FREQ_OPTIONS, value=dv("q7_lonely",    "Rarely"))
 
 st.markdown("**Which of the following do you worry about on a daily or near-daily basis?** *(select all that apply)*")
 answers["q8"] = st.multiselect(
